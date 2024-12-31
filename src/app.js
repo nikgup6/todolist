@@ -1,5 +1,6 @@
 const BACKEND_URL = 'https://todolist-6y0h.onrender.com';
 
+// Fetch tasks from the backend
 async function fetchTasks(user) {
     const response = await fetch(`${BACKEND_URL}/tasks/${user}`);
     if (response.ok) {
@@ -10,6 +11,7 @@ async function fetchTasks(user) {
     }
 }
 
+// Add new task
 async function addTask(user) {
     const input = document.getElementById(`${user}-task-input`);
     const priority = document.getElementById(`${user}-priority`).value;
@@ -37,13 +39,14 @@ async function addTask(user) {
     }
 }
 
+// Render tasks
 async function renderTasks(user) {
     const taskList = document.getElementById(`${user}-tasks`);
     taskList.innerHTML = ''; // Clear the list
 
     try {
         const tasks = await fetchTasks(user);
-        tasks.forEach((task, index) => {
+        tasks.forEach((task) => {
             const li = document.createElement('li');
             li.className = `task-item ${task.completed ? 'completed' : ''}`;
 
@@ -55,8 +58,8 @@ async function renderTasks(user) {
             checkbox.type = 'checkbox';
             checkbox.checked = task.completed;
             checkbox.addEventListener('change', async () => {
-                await toggleTask(user, task._id); // Use unique ID from the backend
-                await renderTasks(user);
+                await toggleTask(user, task._id, !task.completed); // Toggle completion status
+                await renderTasks(user); // Re-render tasks after update
             });
 
             li.appendChild(checkbox);
@@ -67,8 +70,8 @@ async function renderTasks(user) {
                 deleteButton.textContent = 'Delete';
                 deleteButton.className = 'delete-button';
                 deleteButton.addEventListener('click', async () => {
-                    await deleteTask(user, task._id); // Use unique ID from the backend
-                    await renderTasks(user);
+                    await deleteTask(user, task._id); // Delete task
+                    await renderTasks(user); // Re-render tasks after deletion
                 });
                 li.appendChild(deleteButton);
             }
@@ -80,12 +83,13 @@ async function renderTasks(user) {
     }
 }
 
-async function toggleTask(user, taskId) {
+// Toggle task completion status
+async function toggleTask(user, taskId, newStatus) {
     try {
         const response = await fetch(`${BACKEND_URL}/tasks/${taskId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ completed: true }), // Toggle completed state
+            body: JSON.stringify({ completed: newStatus }),
         });
 
         if (!response.ok) {
@@ -96,6 +100,7 @@ async function toggleTask(user, taskId) {
     }
 }
 
+// Delete task
 async function deleteTask(user, taskId) {
     try {
         const response = await fetch(`${BACKEND_URL}/tasks/${taskId}`, {
@@ -111,5 +116,6 @@ async function deleteTask(user, taskId) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Render tasks for each user (example: nikunj, teju)
     ['nikunj', 'teju'].forEach(user => renderTasks(user));
 });
