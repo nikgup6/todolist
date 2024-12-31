@@ -1,4 +1,4 @@
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'https://todolist-6y0h.onrender.com';
 
 async function fetchTasks(user) {
     const response = await fetch(`${BACKEND_URL}/tasks/${user}`);
